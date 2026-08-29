@@ -1,0 +1,143 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  min-height: 100vh;
+}
+
+.app__header h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  line-height: 1.2;
+}
+
+.app__subtitle {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.app__main {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.state-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 24rem;
+}
+
+.state-selector__label {
+  font-weight: 600;
+}
+
+.state-selector__input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: inherit;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.state-selector__input:focus-visible,
+.app__error button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.app__status {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.app__error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--color-error-border);
+  border-radius: 0.5rem;
+  background-color: var(--color-error-surface);
+}
+
+.app__error p {
+  margin: 0;
+}
+
+.app__error button {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.weather-card {
+  padding: 1.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.weather-card__title {
+  margin: 0 0 1rem;
+  font-size: 1.5rem;
+}
+
+.weather-card__abbr {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.weather-card__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.weather-card__metric dt {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.weather-card__metric dd {
+  display: flex;
+  flex-direction: column;
+  margin: 0.25rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.weather-card__secondary {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.weather-card__source {
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.app__footer {
+  margin-top: auto;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+@media (max-width: 30rem) {
+  .weather-card__metric dd {
+    font-size: 1.5rem;
+  }
+}
