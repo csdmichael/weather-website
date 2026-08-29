@@ -1,0 +1,105 @@
+name: Deploy to Azure App Service (Dev)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: 20
+  AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+
+jobs:
+  build:
+    name: Build deployment package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint, test and build
+        run: |
+          npm run lint
+          npm test
+          npm run build
+
+      - name: Assemble App Service package
+        run: |
+          mkdir -p release
+          cp -r server/dist release/dist
+          cp server/package.json release/package.json
+          cd release
+          npm install --omit=dev --no-audit --no-fund
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-website-app
+          path: release
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Dev
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: Dev
+      url: ${{ steps.deploy.outputs.webapp-url }}
+    steps:
+      - name: Download package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: weather-website-app
+          path: release
+
+      - name: Sign in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        id: deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ vars.AZURE_WEBAPP_SLOT_NAME || 'production' }}
+          package: release
+          startup-command: node dist/index.js
+
+      - name: Smoke test the deployment
+        run: |
+          url="${{ steps.deploy.outputs.webapp-url }}"
+          for attempt in 1 2 3 4 5; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$url/api/health" || true)
+            if [ "$status" = "200" ]; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $attempt returned HTTP $status, retrying in 15s"
+            sleep 15
+          done
+          echo "Health check failed"
+          exit 1
+
+      - name: Sign out of Azure
+        if: always()
+        run: az logout || true

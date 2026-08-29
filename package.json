@@ -1,0 +1,22 @@
+{
+  "name": "weather-website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Weather averages by US State website",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspace client && npm run build --workspace server",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces",
+    "start": "npm run start --workspace server"
+  }
+}
