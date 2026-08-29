@@ -4,7 +4,8 @@ import { getWeatherRepository } from "./weatherRepository.js";
 const port = Number(process.env.PORT ?? 3001);
 
 try {
-  // Fail fast (and loudly) when the bundled dataset cannot be validated.
+  // Validate the dataset eagerly so problems surface in the startup logs. The server still starts:
+  // health reports "degraded" and the data endpoints answer 503 as required by the API contract.
   getWeatherRepository();
 } catch (error) {
   console.error("Weather dataset validation failed:", error);
